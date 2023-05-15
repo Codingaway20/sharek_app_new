@@ -42,12 +42,13 @@ class LoginPage extends StatelessWidget {
                       height: 15,
                     ),
                     const Text(
-                      "Login",
+                      "Welcome back",
                       style: TextStyle(
                         fontSize: 30,
                         color: Colors.white,
                       ),
                     ),
+
                     //Email text field
                     Padding(
                       padding: const EdgeInsets.all(15),
@@ -63,12 +64,18 @@ class LoginPage extends StatelessWidget {
                               color: Colors.white,
                               fontSize: 15,
                             ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                              ),
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.all(
                                 Radius.circular(10),
                               ),
                             ),
-                            fillColor: Colors.red,
+                            filled: true,
+                            fillColor: Colors.white30,
                             icon: Icon(
                               Icons.email,
                               color: Colors.orange,
@@ -87,7 +94,14 @@ class LoginPage extends StatelessWidget {
                           ),
                           textAlign: TextAlign.left,
                           decoration: InputDecoration(
-                            hintText: "*********",
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.white,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white30,
+                            hintText: "***********",
                             hintStyle: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -97,14 +111,88 @@ class LoginPage extends StatelessWidget {
                                 Radius.circular(10),
                               ),
                             ),
-                            fillColor: Colors.red,
                             icon: Icon(
                               Icons.password,
+                              color: Colors.orange,
+                            ),
+                            suffixIcon: Icon(
+                              Icons.remove_red_eye,
                               color: Colors.orange,
                             ),
                           ),
                         ),
                       ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.only(
+                            left: 40,
+                            right: 40,
+                            top: 10,
+                            bottom: 10,
+                          ),
+                          child: Text(
+                            "Sign in",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 35,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                        onPressed: () {},
+                        child: const Text(
+                          "forgot password ?",
+                          style: TextStyle(
+                            color: Colors.orange,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Spacer(),
+                    const Divider(
+                      thickness: 0.5,
+                      color: Colors.white,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          "new here?",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        TextButton(
+                            onPressed: () {},
+                            child: const Text(
+                              "Sign up",
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ))
+                      ],
                     ),
                   ],
                 ),
