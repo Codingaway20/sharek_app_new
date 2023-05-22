@@ -16,14 +16,25 @@ class AppDataBase {
     required this.host,
     required this.port,
     required this.name,
-  });
+  }) {
+    makeConnection();
+    initConnection();
+  }
 
   void makeConnection() {
-    _databaseConnection = PostgreSQLConnection(host, port, name,
+    try {
+      _databaseConnection = PostgreSQLConnection(
+        host,
+        port,
+        name,
         queryTimeoutInSeconds: 3600,
         timeoutInSeconds: 3600,
         username: username,
-        password: password);
+        password: password,
+      );
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG);
+    }
   }
 
   Future<int> initConnection() async {
@@ -32,21 +43,26 @@ class AppDataBase {
       Fluttertoast.showToast(msg: "dataBase connected ");
       return 1;
     } catch (e) {
-      Fluttertoast.showToast(msg: "dataBase connection is not successful!!");
+      Fluttertoast.showToast(msg: "dataBase not connected ");
+      Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG);
+      print("\n-------------------------------------------\n${e.toString()}\n");
       return -1;
     }
   }
 
   Future<List<List<dynamic>>> readData(String sql) async {
     List<List<dynamic>> result = [
-      ["NULL"]
+      ["nothing"]
     ];
+    result.clear();
+
     try {
       result = await _databaseConnection!.query(sql);
       return result;
     } catch (e) {
-      Fluttertoast.showToast(msg: "problem executing the query !!");
+      Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG);
+      print("\n-------------------------------------------\n${e.toString()}\n");
+      return result;
     }
-    return result;
   }
 }

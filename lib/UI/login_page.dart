@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 
+import 'package:get/get.dart';
+
+import '../controllers/app_controller.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
+  LoginPage({super.key});
+
+  final AppController _appController = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +201,12 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
+            IconButton(
+                onPressed: () async {
+                  await _appController.initConnection();
+                  await _appController.read();
+                },
+                icon: Icon(Icons.read_more)),
           ],
         ),
       ),
