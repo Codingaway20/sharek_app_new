@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:sharek_app_new/db/app_database_new.dart';
 
 import '../controllers/app_controller.dart';
 
@@ -203,8 +204,7 @@ class LoginPage extends StatelessWidget {
             ),
             IconButton(
                 onPressed: () async {
-                  await _appController.initConnection();
-                  await _appController.read();
+                  await AppDatabase().readAllUsersData();
                 },
                 icon: Icon(Icons.read_more)),
           ],
