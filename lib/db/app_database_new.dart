@@ -34,7 +34,9 @@ class AppDatabase {
             '10.0.2.2',
             5432,
             'sharek_app_database',
+            //username: 'postgres',
             username: 'postgres',
+            //password: 'admin123@',
             password: 'admin123@',
             timeoutInSeconds: 30,
             queryTimeoutInSeconds: 30,
@@ -54,7 +56,8 @@ class AppDatabase {
         //Stage 1 : Make sure email or mobile not registered.
         Users = await newSellerConn.query(
           //where Name = @emailValue'
-          'select * from myTable',
+          '''select * from "User"
+          ''',
           //substitutionValues: {'emailValue': 'John Doe'},
           allowReuse: true,
           timeoutInSeconds: 30,
@@ -64,7 +67,7 @@ class AppDatabase {
         print("\n$element");
       }
     } catch (exc) {
-      print("\n---------------------------------------------$exc\n\n");
+      print("\n---------------------------------------------\n$exc\n\n");
     }
   }
 
