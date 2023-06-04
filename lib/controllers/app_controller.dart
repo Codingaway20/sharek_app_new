@@ -3,18 +3,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
 
-import '../db/app_dataBase.dart';
-
 class AppController extends GetxController {
-  // static AppDataBase sqldatabse = AppDataBase(
-  //   username: "postgres",
-  //   password: "admin123@",
-  //   host: "10.0.2.2",
-  //   port: 5432,
-  //   //name: "sharek_app_database",
-  //   name: "postgres",
-  // );
-
+  // --------------DataBase---------------//
   PostgreSQLConnection? databaseConnection;
 
   Future<void> initConnection() async {
@@ -58,4 +48,30 @@ class AppController extends GetxController {
       print("\n\n${e.toString()}");
     }
   }
+
+  // --------------TextFields---------------//
+  bool checkFields(List<TextEditingController> fields) {
+    for (var field in fields) {
+      if (field.text.isEmpty) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // --------------Current User Info---------------//
+
+  var currentUserEmail =
+      "".obs; //this will be filled after a successful registarion/ login
+
+
+  Future<void> getCurrentUserID() async{
+    
+
+  }
+
+
+
+  // --------------  Home page Controller---------------//
+  var pageindex = 0.obs;
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import 'UI/login_page.dart';
 import 'controllers/app_controller.dart';
+import 'controllers/signUpController.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,6 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(AppController());
+    Get.put(SignUpController());
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       home: LoginPage(),

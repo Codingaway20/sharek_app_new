@@ -1,8 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class User {
-  int userId;
   String email;
   String name;
+  String password;
   String phoneNumber;
   String profilePicture;
   bool available;
@@ -11,9 +11,9 @@ class User {
   bool driverFlag;
   bool customerFlag;
   User({
-    required this.userId,
     required this.email,
     required this.name,
+    required this.password,
     required this.phoneNumber,
     required this.profilePicture,
     required this.available,

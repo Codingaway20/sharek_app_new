@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
+import 'package:sharek_app_new/UI/signUp_page.dart';
 import 'package:sharek_app_new/db/app_database_new.dart';
 
 import '../controllers/app_controller.dart';
+import 'home_page.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   LoginPage({super.key});
 
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final AppController _appController = Get.find();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -57,12 +66,13 @@ class LoginPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(15),
                       child: Container(
-                        child: const TextField(
-                          style: TextStyle(
+                        child: TextField(
+                          controller: _emailController,
+                          style: const TextStyle(
                             color: Colors.white,
                           ),
                           textAlign: TextAlign.left,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: "email@example.com",
                             hintStyle: TextStyle(
                               color: Colors.white,
@@ -92,12 +102,13 @@ class LoginPage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(15),
                       child: Container(
-                        child: const TextField(
-                          style: TextStyle(
+                        child: TextField(
+                          controller: _passwordController,
+                          style: const TextStyle(
                             color: Colors.white,
                           ),
                           textAlign: TextAlign.left,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             enabledBorder: OutlineInputBorder(
                               borderSide: BorderSide(
                                 color: Colors.white,
@@ -128,25 +139,41 @@ class LoginPage extends StatelessWidget {
                       ),
                     ),
 
-                    Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.only(
-                            left: 40,
-                            right: 40,
-                            top: 10,
-                            bottom: 10,
+                    InkWell(
+                      onTap: () async {
+                        bool loginStatus = await AppDatabase().userLogin(
+                            _emailController.text.trim(),
+                            _passwordController.text.trim());
+
+                        if (loginStatus) {
+                          _appController.currentUserEmail.value =
+                              _emailController.text;
+                          Get.to(
+                            () => HomePage(),
+                            transition: Transition.fade,
+                          );
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.circular(25),
                           ),
-                          child: Text(
-                            "Sign in",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 35,
+                          child: const Padding(
+                            padding: EdgeInsets.only(
+                              left: 40,
+                              right: 40,
+                              top: 10,
+                              bottom: 10,
+                            ),
+                            child: Text(
+                              "Sign in",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 35,
+                              ),
                             ),
                           ),
                         ),
@@ -187,7 +214,12 @@ class LoginPage extends StatelessWidget {
                           width: 5,
                         ),
                         TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Get.to(
+                                () => const SignUp(),
+                                transition: Transition.fade,
+                              );
+                            },
                             child: const Text(
                               "Sign up",
                               style: TextStyle(
