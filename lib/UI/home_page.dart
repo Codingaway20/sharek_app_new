@@ -42,6 +42,9 @@ class HomePage extends StatelessWidget {
             selectedItemColor: Colors.blue,
             onTap: (int index) {
               _appController.pageindex.value = index;
+              if (_appController.pageindex.value == 0) {
+                _appController.getAllCustomersPosts();
+              }
               print(
                   "\n_appController.pageindex.value =>${_appController.pageindex.value}");
             },

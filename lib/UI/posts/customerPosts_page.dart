@@ -12,7 +12,9 @@ class CustomerPosts extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() => ListView(
-            children: _appController.customersPosts.value,
+            padding: const EdgeInsets.all(10),
+            reverse: true,
+            children: _appController.customersPosts,
           )),
     );
   }

@@ -70,15 +70,51 @@ class AppController extends GetxController {
   var customersPosts = [Container()].obs;
   var driverPosts = [Container()].obs;
   Future<void> getAllCustomersPosts() async {
-
+    customersPosts.clear();
     //Now get the posts from DB
-    var result = await AppDatabase().getAllCustomersPosts();
-    
+    List<List<dynamic>> result = await AppDatabase().getAllCustomersPosts();
+
     //fill Containers with info
-    
-
-
-
+    customersPosts.add(Container(
+      height: 150,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.orange,
+        ),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          //dates
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(result[0][3].toString()),
+              Text(result[0][1].toString()),
+            ],
+          ),
+          //city from -city to
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(result[0][6].toString()),
+              Text(result[0][5].toString()),
+            ],
+          ),
+          //price - shared - number of customers
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(result[0][8].toString()),
+              Text(result[0][9].toString()),
+              Text(result[0][7].toString()),
+            ],
+          ),
+        ],
+      ),
+    ));
   }
 
   //-------------------------------------//
