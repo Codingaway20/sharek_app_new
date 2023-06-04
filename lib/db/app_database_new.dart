@@ -127,4 +127,54 @@ class AppDatabase {
     }
     return returnStatus;
   }
+
+  Future<int> getUserId(String email) async {
+    PostgreSQLResult? loggedInUserid;
+
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        loggedInUserid = await newSellerConn.query(
+          '''
+              select "USER_ID" from "User" where "Email" = '$email'
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+      });
+    } catch (exc) {
+      //Fluttertoast.showToast(msg: exc.toString(), textColor: Colors.red);
+      print("\n-----------------------${exc.toString()}\n");
+    }
+    if (loggedInUserid == null) {
+      return -1;
+    } else {
+      return loggedInUserid![0][0];
+    }
+  }
+
+  Future<List<List<dynamic>>> getAllCustomersPosts() async {
+    PostgreSQLResult? customersPosts;
+
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        customersPosts = await newSellerConn.query(
+          '''
+              select * from "Customer_Post"
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+      });
+    } catch (exc) {
+      //Fluttertoast.showToast(msg: exc.toString(), textColor: Colors.red);
+      print("\n-----------------------${exc.toString()}\n");
+    }
+    if (customersPosts != null) {
+      return customersPosts as List<List<dynamic>>;
+    } else {
+      return [[]];
+    }
+  }
 }

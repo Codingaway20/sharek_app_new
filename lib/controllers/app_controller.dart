@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:postgres/postgres.dart';
+import 'package:sharek_app_new/db/app_database_new.dart';
 
 class AppController extends GetxController {
   // --------------DataBase---------------//
@@ -48,6 +49,7 @@ class AppController extends GetxController {
       print("\n\n${e.toString()}");
     }
   }
+  //-------------------------------------//
 
   // --------------TextFields---------------//
   bool checkFields(List<TextEditingController> fields) {
@@ -58,20 +60,30 @@ class AppController extends GetxController {
     }
     return true;
   }
+  //-------------------------------------//
 
   // --------------Current User Info---------------//
 
   var currentUserEmail =
       "".obs; //this will be filled after a successful registarion/ login
 
+  var customersPosts = [Container()].obs;
+  var driverPosts = [Container()].obs;
+  Future<void> getAllCustomersPosts() async {
 
-  Future<void> getCurrentUserID() async{
+    //Now get the posts from DB
+    var result = await AppDatabase().getAllCustomersPosts();
     
+    //fill Containers with info
+    
+
+
 
   }
 
-
+  //-------------------------------------//
 
   // --------------  Home page Controller---------------//
   var pageindex = 0.obs;
+  //-------------------------------------//
 }
