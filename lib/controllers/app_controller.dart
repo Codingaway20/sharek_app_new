@@ -74,47 +74,145 @@ class AppController extends GetxController {
     //Now get the posts from DB
     List<List<dynamic>> result = await AppDatabase().getAllCustomersPosts();
 
-    //fill Containers with info
-    customersPosts.add(Container(
-      height: 150,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.orange,
+    for (int i = 0; i < result.length; i++) {
+      //fill Containers with info
+      customersPosts.add(Container(
+        height: 150,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.orange,
+          ),
+          borderRadius: BorderRadius.circular(15),
         ),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          //dates
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(result[0][3].toString()),
-              Text(result[0][1].toString()),
-            ],
-          ),
-          //city from -city to
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(result[0][6].toString()),
-              Text(result[0][5].toString()),
-            ],
-          ),
-          //price - shared - number of customers
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Text(result[0][8].toString()),
-              Text(result[0][9].toString()),
-              Text(result[0][7].toString()),
-            ],
-          ),
-        ],
-      ),
-    ));
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            //info like notes and plate number
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                //Notes
+                IconButton(
+                  onPressed: () {
+                    Fluttertoast.showToast(
+                      msg: result[i][2].toString(),
+                      fontSize: 17,
+                      gravity: ToastGravity.CENTER,
+                      toastLength: Toast.LENGTH_LONG,
+                      backgroundColor: Colors.amber,
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.note,
+                    color: Colors.amber,
+                  ),
+                ),
+                //Plate Number
+                IconButton(
+                  onPressed: () {
+                    Fluttertoast.showToast(
+                      msg: "Plate Number: ${result[i][4]}",
+                      fontSize: 17,
+                      gravity: ToastGravity.CENTER,
+                      toastLength: Toast.LENGTH_LONG,
+                      backgroundColor: Colors.amber,
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.info_rounded,
+                    color: Colors.amber,
+                  ),
+                ),
+              ],
+            ),
+            //dates
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Spacer(),
+                const Text(
+                  "Post Date:  ",
+                  style: TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(result[i][3].toString().substring(0, 10)),
+                Spacer(),
+                const Text(
+                  "Trip Date:  ",
+                  style: TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(result[i][1].toString().substring(0, 10)),
+                Spacer(),
+              ],
+            ),
+            //city from -city to
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  "From:  ",
+                  style: TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(result[i][6].toString()),
+                const Text(
+                  "To:  ",
+                  style: TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(result[i][5].toString()),
+              ],
+            ),
+            //price - shared - number of customers
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Text(
+                  "Price:  ",
+                  style: TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(result[i][8].toString()),
+                Spacer(),
+                const Text(
+                  "shared:  ",
+                  style: TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(result[i][9].toString() == "true" ? "yes" : "no"),
+                Spacer(),
+                const Text(
+                  "number of customers:  ",
+                  style: TextStyle(
+                    color: Colors.orange,
+                  ),
+                ),
+                Text(result[i][7].toString()),
+                Spacer(),
+              ],
+            ),
+          ],
+        ),
+      ));
+      customersPosts.add(Container(
+        child: const Divider(
+          height: 4,
+          color: Colors.black,
+          thickness: 2,
+        ),
+      ));
+      customersPosts.add(Container(
+        child: Spacer(),
+      ));
+    }
   }
 
   //-------------------------------------//

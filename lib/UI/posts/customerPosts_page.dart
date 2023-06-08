@@ -11,6 +11,31 @@ class CustomerPosts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.orange,
+        automaticallyImplyLeading: false,
+        actions: [
+          Row(
+            children: [
+              const Text(
+                "Create Post",
+              ),
+              IconButton(
+                onPressed: () async {
+                  //create post
+                  
+
+                  //add to DB
+                },
+                icon: const Icon(
+                  Icons.create,
+                  semanticLabel: "Create Post",
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: Obx(() => ListView(
             padding: const EdgeInsets.all(10),
             reverse: true,

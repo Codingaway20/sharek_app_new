@@ -33,9 +33,9 @@ class AppDatabase {
             // for external device like mobile phone use domain.com or
             // your computer machine IP address (i.e,192.168.0.1,etc)
             // when using AVD add this IP 10.0.2.2
-            '10.0.2.2',
-            //'192.168.0.113',
-            //'192.168.23.1',
+            //'10.0.2.2',
+            '192.168.0.113',
+          
             5432,
             'sharek_app_database',
             //username: 'postgres',
