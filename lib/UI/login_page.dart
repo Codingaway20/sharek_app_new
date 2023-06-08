@@ -148,6 +148,9 @@ class _LoginPageState extends State<LoginPage> {
                         if (loginStatus) {
                           _appController.currentUserEmail.value =
                               _emailController.text;
+
+                          _appController.currentCustomerId = await
+                              AppDatabase().getUserId(_appController.currentUserEmail.value);
                           Get.to(
                             () => HomePage(),
                             transition: Transition.fade,

@@ -5,52 +5,6 @@ import 'package:postgres/postgres.dart';
 import 'package:sharek_app_new/db/app_database_new.dart';
 
 class AppController extends GetxController {
-  // --------------DataBase---------------//
-  PostgreSQLConnection? databaseConnection;
-
-  Future<void> initConnection() async {
-    databaseConnection = PostgreSQLConnection(
-      '10.0.2.2',
-      5432,
-      'sharek_app_database',
-      queryTimeoutInSeconds: 3600,
-      timeoutInSeconds: 3600,
-      username: 'postgres',
-      password: 'admin123@',
-    );
-
-    try {
-      await databaseConnection!.open();
-      Fluttertoast.showToast(msg: "dataBase connected ");
-    } catch (e) {
-      Fluttertoast.showToast(msg: "dataBase not connected ");
-      Fluttertoast.showToast(msg: e.toString(), toastLength: Toast.LENGTH_LONG);
-      print("\n-------------------------------------------\n${e.toString()}\n");
-    }
-  }
-
-  Future<void> read() async {
-    try {
-      //var result = await databaseConnection!.query("SELECT * FROM Post");
-
-      var result = await databaseConnection!.query('''
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = 'sharek_app_database';
-
-            ''');
-      print("\n\nresult is => $result\n\n");
-      Fluttertoast.showToast(
-          msg: result.toString(), toastLength: Toast.LENGTH_LONG);
-      for (var element in result) {
-        print("\n--------------\n$element");
-      }
-    } catch (e) {
-      print("\n\n${e.toString()}");
-    }
-  }
-  //-------------------------------------//
-
   // --------------TextFields---------------//
   bool checkFields(List<TextEditingController> fields) {
     for (var field in fields) {
@@ -64,8 +18,12 @@ class AppController extends GetxController {
 
   // --------------Current User Info---------------//
 
-  var currentUserEmail =
-      "".obs; //this will be filled after a successful registarion/ login
+  var currentUserEmail = "".obs;
+  var currentCustomerId =
+      -1.obs; //this will be filled after a successful registarion/ login
+
+  RxMap<int, bool> deletePostButtonVisiblityMap = {-1: false}.obs;
+  var numberOfCustomersPosts = 0.obs;
 
   var customersPosts = [Container()].obs;
   var driverPosts = [Container()].obs;
@@ -74,7 +32,14 @@ class AppController extends GetxController {
     //Now get the posts from DB
     List<List<dynamic>> result = await AppDatabase().getAllCustomersPosts();
 
+    numberOfCustomersPosts.value = result.length;
+
     for (int i = 0; i < result.length; i++) {
+      if (result[i][10] != currentCustomerId) {
+        deletePostButtonVisiblityMap[i] = false;
+      } else {
+        deletePostButtonVisiblityMap[i] = true;
+      }
       //fill Containers with info
       customersPosts.add(Container(
         height: 150,
@@ -122,6 +87,43 @@ class AppController extends GetxController {
                   icon: const Icon(
                     Icons.info_rounded,
                     color: Colors.amber,
+                  ),
+                ),
+                //Delete button
+                Obx(
+                  () => Visibility(
+                    visible: deletePostButtonVisiblityMap[i]!,
+                    child: InkWell(
+                      onTap: () {
+                        Fluttertoast.showToast(
+                          msg: "Long press to confirm delete",
+                          textColor: Colors.red,
+                          gravity: ToastGravity.TOP,
+                        );
+                      },
+                      onLongPress: () async {
+                        try {
+                          //remove from DB
+                          AppDatabase().deleteCustoner(result[i][0]);
+                          //Remove from screen
+                          customersPosts.removeAt(i);
+                          Fluttertoast.showToast(
+                            msg: "Post has been removed successfully",
+                            textColor: Colors.green,
+                            gravity: ToastGravity.CENTER,
+                          );
+                        } catch (e) {
+                          Fluttertoast.showToast(
+                            msg: e.toString(),
+                            textColor: Colors.red,
+                          );
+                        }
+                      },
+                      child: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -210,14 +212,20 @@ class AppController extends GetxController {
         ),
       ));
       customersPosts.add(Container(
-        child: Spacer(),
-      ));
+          child: const SizedBox(
+        height: 20,
+      )));
     }
   }
 
   //-------------------------------------//
 
   // --------------  Home page Controller---------------//
-  var pageindex = 0.obs;
+  var pageindex = 1.obs;
+  //-------------------------------------//
+
+  // --------------  Customers Post pgae Controller---------------//
+  var isShared = false.obs;
+
   //-------------------------------------//
 }
