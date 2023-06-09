@@ -80,15 +80,7 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           backgroundColor: Colors.orange,
           actions: [
-            IconButton(
-              onPressed: () async {
-                if (_appController.filterIsSharedPressed.value) {
-                  _appController.filterIsSharedPressed.value = false;
-                  await _appController.getAllCustomersPosts();
-                }
-              },
-              icon: const Icon(Icons.close),
-            ),
+            discardFiltersButton(),
             appyFiltersButton(context),
             Obx(
               () => Visibility(
@@ -158,6 +150,23 @@ class _HomePageState extends State<HomePage> {
             index: _appController.pageindex.value,
             children: _pages,
           ),
+        ),
+      ),
+    );
+  }
+
+  Obx discardFiltersButton() {
+    return Obx(
+      () => Visibility(
+        visible: _appController.pageindex.value == 0 ? true : false,
+        child: IconButton(
+          onPressed: () async {
+            if (_appController.filterIsSharedPressed.value) {
+              _appController.filterIsSharedPressed.value = false;
+              await _appController.getAllCustomersPosts();
+            }
+          },
+          icon: const Icon(Icons.close),
         ),
       ),
     );
@@ -258,7 +267,6 @@ class _HomePageState extends State<HomePage> {
                               _fromCityFilter.text,
                               _toCityFilter.text);
                           _appController.filterIsSharedPressed.value = true;
-            
                         } catch (e) {
                           Fluttertoast.showToast(
                             msg: e.toString(),

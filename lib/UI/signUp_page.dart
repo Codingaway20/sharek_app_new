@@ -122,7 +122,7 @@ class _SignUpState extends State<SignUp> {
                   },
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     //clear the fileds
                     fields.clear();
                     //add the fileds
@@ -153,7 +153,7 @@ class _SignUpState extends State<SignUp> {
                     }
 
                     //create new user
-                    AppDatabase().registerUser(
+                    await AppDatabase().registerUser(
                       User(
                         email: _emailController.text.trim(),
                         name: _nameController.text.trim(),
@@ -170,6 +170,10 @@ class _SignUpState extends State<SignUp> {
 
                     _appController.currentUserEmail.value =
                         _emailController.text;
+
+                    _appController.currentCustomerId = await AppDatabase()
+                        .getUserId(_appController.currentUserEmail.value);
+
                     Get.to(
                       () => HomePage(),
                     );

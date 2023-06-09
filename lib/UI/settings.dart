@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:sharek_app_new/UI/login_page.dart';
 import 'package:sharek_app_new/db/app_database_new.dart';
 
 class Settings extends StatefulWidget {
@@ -10,6 +12,7 @@ class Settings extends StatefulWidget {
 }
 
 final TextEditingController _newUsername = TextEditingController();
+final TextEditingController _newPhoneNumber = TextEditingController();
 
 class _SettingsState extends State<Settings> {
   @override
@@ -28,11 +31,38 @@ class _SettingsState extends State<Settings> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('Alert'),
-                          content: Text('This is an alert dialog.'),
+                          title: const Center(child: Text('newPhoneNumber')),
+                          content: Column(
+                            children: [
+                              TextField(
+                                decoration: const InputDecoration(
+                                  hintText: "new phone number...",
+                                ),
+                                controller: _newPhoneNumber,
+                              ),
+                            ],
+                          ),
                           actions: [
                             TextButton(
-                              onPressed: () {
+                              onPressed: () async {
+                                if (_newPhoneNumber.text.isEmpty) {
+                                  Fluttertoast.showToast(
+                                    msg: "fill all the fields!",
+                                    textColor: Colors.red,
+                                    gravity: ToastGravity.CENTER,
+                                  );
+                                  return;
+                                }
+                                try {
+                                  await AppDatabase()
+                                      .updatePhoneNumber(_newPhoneNumber.text);
+                                } catch (e) {
+                                  Fluttertoast.showToast(
+                                    msg: e.toString(),
+                                    textColor: Colors.red,
+                                    gravity: ToastGravity.CENTER,
+                                  );
+                                }
                                 Navigator.of(context).pop(); // Close the dialog
                               },
                               child: Text('OK'),
@@ -110,6 +140,34 @@ class _SettingsState extends State<Settings> {
                   },
                   child: const Text("Change name"))
             ],
+          ),
+
+          Spacer(),
+          GestureDetector(
+            onTap: () {
+              Get.offAll(
+                () => LoginPage(),
+                transition: Transition.circularReveal,
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(30),
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: const BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(
+                      child: Text(
+                    "Sign out",
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  )),
+                ),
+              ),
+            ),
           ),
         ],
       ),

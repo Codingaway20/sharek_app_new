@@ -459,12 +459,43 @@ class AppDatabase {
         );
 
         Fluttertoast.showToast(
-          msg: "name Updated  added ",
+          msg: "name Updated",
           textColor: Colors.green,
         );
       });
     } catch (exc) {
       print("\n\nerror updating   username\n${exc.toString()}");
+      Fluttertoast.showToast(
+        msg: exc.toString(),
+        textColor: Colors.red,
+        gravity: ToastGravity.CENTER,
+        toastLength: Toast.LENGTH_LONG,
+      );
+    }
+  }
+
+  //Update phone number
+  Future<void> updatePhoneNumber(String phoneNumber) async {
+    //await conn.execute('UPDATE your_table SET column1 = value1, column2 = value2 WHERE condition');
+    PostgreSQLResult updateResult;
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        updateResult = await newSellerConn.query(
+          '''
+            update "User" set "PhonNum" = '$phoneNumber' where "USER_ID" = ${_appController.currentCustomerId}
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+
+        Fluttertoast.showToast(
+          msg: "phoneNumber Updated ",
+          textColor: Colors.green,
+        );
+      });
+    } catch (exc) {
+      print("\n\nerror updating phoneNumber\n${exc.toString()}");
       Fluttertoast.showToast(
         msg: exc.toString(),
         textColor: Colors.red,
