@@ -7,6 +7,7 @@ import 'package:sharek_app_new/classes/driverPost.dart';
 import 'package:sharek_app_new/controllers/app_controller.dart';
 
 import '../db/app_database_new.dart';
+import 'busCompanies_page.dart';
 import 'posts/customerPosts_page.dart';
 import 'posts/driverPosts_page.dart';
 
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     CustomerPosts(),
     const DriverPosts(),
+    BusCompanies(),
     const Settings(),
   ];
 
@@ -86,27 +88,34 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: Obx(
           () => BottomNavigationBar(
+            unselectedItemColor: Colors.black,
             items: const <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
+                icon: Icon(Icons.feed),
                 label: 'Customers Posts',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.favorite),
+                icon: Icon(Icons.drive_eta),
                 label: 'Driver Posts',
               ),
-              
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
+                icon: Icon(Icons.bus_alert),
+                label: 'Bus companies',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
                 label: 'Settings',
               ),
             ],
             currentIndex: _appController.pageindex.value,
             selectedItemColor: Colors.orange,
-            onTap: (int index) {
+            onTap: (int index) async {
               _appController.pageindex.value = index;
               if (_appController.pageindex.value == 0) {
-                _appController.getAllCustomersPosts();
+                await _appController.getAllCustomersPosts();
+              }
+              if (_appController.pageindex.value == 2) {
+                await _appController.getAllBusCompanies();
               }
             },
           ),

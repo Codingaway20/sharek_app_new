@@ -197,6 +197,31 @@ class AppDatabase {
     }
   }
 
+  //getting all bus Companies info
+  Future<List<List<dynamic>>> getAllBusCompanies() async {
+    PostgreSQLResult? busCompanies;
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        busCompanies = await newSellerConn.query(
+          '''
+              select * from "Bus Company Location"
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+      });
+    } catch (exc) {
+      //Fluttertoast.showToast(msg: exc.toString(), textColor: Colors.red);
+      print("\n-----------------------${exc.toString()}\n");
+    }
+    if (busCompanies != null) {
+      return busCompanies as List<List<dynamic>>;
+    } else {
+      return [[]];
+    }
+  }
+
   //create new Customer post
   Future<void> createNewCustomerPost(
       DateTime trip_date,
@@ -299,7 +324,6 @@ class AppDatabase {
 
   ///add new Bus Company
   Future<void> addNewBusCompany(String companyName) async {
-
     PostgreSQLResult newBusCompany;
     try {
       await connection!.open();
@@ -318,6 +342,37 @@ class AppDatabase {
       });
     } catch (exc) {
       print("\n\nerror adding  company\n${exc.toString()}");
+      Fluttertoast.showToast(
+        msg: exc.toString(),
+        textColor: Colors.red,
+        gravity: ToastGravity.CENTER,
+        toastLength: Toast.LENGTH_LONG,
+      );
+    }
+  }
+
+  //Update username
+  Future<void> updateUsername(String userName) async {
+    //await conn.execute('UPDATE your_table SET column1 = value1, column2 = value2 WHERE condition');
+    PostgreSQLResult updateResult;
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        updateResult = await newSellerConn.query(
+          '''
+            update "User" set "Name" = '$userName' where "USER_ID" = ${_appController.currentCustomerId}
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+
+        Fluttertoast.showToast(
+          msg: "name Updated  added ",
+          textColor: Colors.green,
+        );
+      });
+    } catch (exc) {
+      print("\n\nerror updating   username\n${exc.toString()}");
       Fluttertoast.showToast(
         msg: exc.toString(),
         textColor: Colors.red,

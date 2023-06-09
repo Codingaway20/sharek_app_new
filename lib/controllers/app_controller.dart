@@ -27,6 +27,7 @@ class AppController extends GetxController {
 
   var customersPosts = [Container()].obs;
   var driverPosts = [Container()].obs;
+  var busCompnaies = [Container()].obs;
   Future<void> getAllCustomersPosts() async {
     customersPosts.clear();
     //Now get the posts from DB
@@ -215,6 +216,93 @@ class AppController extends GetxController {
           child: const SizedBox(
         height: 20,
       )));
+    }
+  }
+
+  Future<void> getAllBusCompanies() async {
+    busCompnaies.clear();
+    List<List<dynamic>> busCompaniesResult =
+        await AppDatabase().getAllBusCompanies();
+
+    for (int i = 0; i < busCompaniesResult.length; i++) {
+      busCompnaies.add(Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.orange,
+          ),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(
+              20,
+            ),
+          ),
+        ),
+        child: Column(children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "Company_name",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+              Text(
+                busCompaniesResult[i][0],
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "City",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+              Text(
+                busCompaniesResult[i][1],
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "phone_number",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+              const SizedBox(
+                width: 15,
+              ),
+              Text(
+                busCompaniesResult[i][2],
+              ),
+            ],
+          ),
+        ]),
+      ));
+      busCompnaies.add(
+        Container(
+          child: const SizedBox(
+            height: 50,
+            child: Divider(
+              color: Colors.black,
+            ),
+          ),
+        ),
+      );
     }
   }
 
