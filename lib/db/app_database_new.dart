@@ -40,7 +40,8 @@ class AppDatabase {
             // your computer machine IP address (i.e,192.168.0.1,etc)
             // when using AVD add this IP 10.0.2.2
             //'10.0.2.2',
-            '192.168.0.113',
+            //'192.168.0.113',
+            '10.143.14.176', //metu address
 
             5432,
             'sharek_app_database',
@@ -118,12 +119,18 @@ class AppDatabase {
           timeoutInSeconds: 30,
         );
         if (loggedInUser.isNotEmpty) {
+          _appController.isCurrentUserDriver.value = loggedInUser[0][6];
+
           Fluttertoast.showToast(
             msg: "Login successfully!",
             textColor: Colors.green,
           );
           returnStatus = true;
         } else {
+          Fluttertoast.showToast(
+            msg: "try again ",
+            textColor: Colors.red,
+          );
           returnStatus = false;
         }
       });

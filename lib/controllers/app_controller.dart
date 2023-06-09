@@ -222,10 +222,11 @@ class AppController extends GetxController {
 
   // --------------  Home page Controller---------------//
   var pageindex = 1.obs;
+  final drawerTextSize = 18.0;
+  var isCurrentUserDriver = false.obs;
   //-------------------------------------//
 
   // --------------  Customers Post pgae Controller---------------//
   var isShared = false.obs;
-
   //-------------------------------------//
 }
