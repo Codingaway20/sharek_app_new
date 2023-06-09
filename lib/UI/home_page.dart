@@ -10,9 +10,14 @@ import '../db/app_database_new.dart';
 import 'posts/customerPosts_page.dart';
 import 'posts/driverPosts_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     CustomerPosts(),
     const DriverPosts(),
@@ -20,17 +25,32 @@ class HomePage extends StatelessWidget {
   ];
 
   final AppController _appController = Get.find();
+
   //controllers for creating new post
   final TextEditingController _tripDate = TextEditingController();
+
   final TextEditingController _from = TextEditingController();
+
   final TextEditingController _to = TextEditingController();
+
   final TextEditingController _notes = TextEditingController();
+
   final TextEditingController _numberOfCustomers = TextEditingController();
+
   final TextEditingController _price = TextEditingController();
 
   final dateRegExp =
       RegExp(r'^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$');
 
+  //adding new Vehicle
+  final TextEditingController _plateNumber = TextEditingController();
+  final TextEditingController _capacity = TextEditingController();
+  final TextEditingController _model = TextEditingController();
+  final TextEditingController _color = TextEditingController();
+  final TextEditingController _registrationNumber = TextEditingController();
+
+  //add new Bus company
+  final TextEditingController _busCompanyName = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -39,7 +59,11 @@ class HomePage extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.orange,
           actions: [
-            createCustomerPostButton(context),
+            Obx(
+              () => Visibility(
+                  visible: _appController.pageindex.value == 0 ? true : false,
+                  child: createCustomerPostButton(context)),
+            ),
           ],
         ),
         drawer: Drawer(
@@ -49,32 +73,13 @@ class HomePage extends StatelessWidget {
             padding: const EdgeInsets.all(15),
             child: ListView(
               children: [
-                Visibility(
-                  visible: _appController.isCurrentUserDriver.value,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(
-                          20,
-                        ),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextButton(
-                        onPressed: () {},
-                        child: Text(
-                          "chnage role",
-                          style: TextStyle(
-                            fontSize: _appController.drawerTextSize,
-                            color: Colors.amber,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                //chnage role
+                chnageRoleButton(),
+                //add car
+                addNewVehicleButton(context),
+
+                //add bus company
+                addNewBusCompanyButton(context),
               ],
             ),
           ),
@@ -90,6 +95,7 @@ class HomePage extends StatelessWidget {
                 icon: Icon(Icons.favorite),
                 label: 'Driver Posts',
               ),
+              
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),
                 label: 'Settings',
@@ -109,6 +115,232 @@ class HomePage extends StatelessWidget {
           () => IndexedStack(
             index: _appController.pageindex.value,
             children: _pages,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Visibility chnageRoleButton() {
+    return Visibility(
+      visible: _appController.isCurrentUserDriver.value,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                20,
+              ),
+            ),
+          ),
+          child: TextButton(
+            onPressed: () async {},
+            child: Text(
+              "chnage role",
+              style: TextStyle(
+                fontSize: _appController.drawerTextSize,
+                color: Colors.amber,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Visibility addNewVehicleButton(BuildContext context) {
+    return Visibility(
+      visible: _appController.isCurrentUserDriver.value,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                20,
+              ),
+            ),
+          ),
+          child: TextButton(
+            onPressed: () {
+              //add new car here
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Center(child: Text('Add new Vehicle ')),
+                    content: ListView(
+                      children: [
+                        TextField(
+                          decoration: const InputDecoration(
+                            hintText: "plateNumber",
+                          ),
+                          controller: _plateNumber,
+                        ),
+                        TextField(
+                          controller: _capacity,
+                          decoration: const InputDecoration(
+                            hintText: "capacity",
+                          ),
+                        ),
+                        TextField(
+                          controller: _model,
+                          decoration: const InputDecoration(
+                            hintText: "model",
+                          ),
+                        ),
+                        TextField(
+                          controller: _color,
+                          decoration: const InputDecoration(
+                            hintText: "color",
+                          ),
+                        ),
+                        TextField(
+                          controller: _registrationNumber,
+                          decoration: const InputDecoration(
+                            hintText: "registrationNumber",
+                          ),
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          // Perform action when the "Cancel" button is pressed
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          if (_plateNumber.text.isEmpty ||
+                              _capacity.text.isEmpty ||
+                              _model.text.isEmpty ||
+                              _color.text.isEmpty ||
+                              _registrationNumber.text.isEmpty) {
+                            Fluttertoast.showToast(
+                              msg: "fill all the fileds",
+                              textColor: Colors.red,
+                              gravity: ToastGravity.CENTER,
+                            );
+                            return;
+                          }
+                          //insert to DB
+                          try {
+                            await AppDatabase().createNewVehicle(
+                                _plateNumber.text,
+                                int.parse(_capacity.text),
+                                _model.text,
+                                _color.text,
+                                _registrationNumber.text);
+
+                            _plateNumber.clear();
+                            _capacity.clear();
+                            _model.clear();
+                            _color.clear();
+                            _registrationNumber.clear();
+
+                            Navigator.of(context).pop();
+                          } catch (e) {
+                            Fluttertoast.showToast(
+                                msg: e.toString(), textColor: Colors.red);
+                          }
+                        },
+                        child: const Text('add'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Text(
+              "add Vehicle",
+              style: TextStyle(
+                fontSize: _appController.drawerTextSize,
+                color: Colors.amber,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Visibility addNewBusCompanyButton(BuildContext context) {
+    return Visibility(
+      visible: _appController.isCurrentUserDriver.value,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                20,
+              ),
+            ),
+          ),
+          child: TextButton(
+            onPressed: () {
+              //add new car here
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Center(
+                      child: Text(
+                        'Add new Bus Company ',
+                      ),
+                    ),
+                    content: ListView(
+                      children: [
+                        TextField(
+                          decoration: const InputDecoration(
+                            hintText: "company name",
+                          ),
+                          controller: _busCompanyName,
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          // Perform action when the "Cancel" button is pressed
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          if (_busCompanyName.text.isEmpty) {
+                            Fluttertoast.showToast(
+                              msg: "fill all the fields",
+                              textColor: Colors.red,
+                              gravity: ToastGravity.CENTER,
+                            );
+                            return;
+                          }
+
+                          //insert in DB
+                          try {} catch (e) {}
+                        },
+                        child: const Text('add'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: Text(
+              "Add new Bus Company",
+              style: TextStyle(
+                fontSize: _appController.drawerTextSize,
+                color: Colors.amber,
+              ),
+            ),
           ),
         ),
       ),

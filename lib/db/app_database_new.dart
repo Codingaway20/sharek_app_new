@@ -256,4 +256,74 @@ class AppDatabase {
       print("\n-----------------------${exc.toString()}\n");
     }
   }
+
+  //add new car
+  Future<void> createNewVehicle(String plateNumber, int capacity, String model,
+      String color, String registrationNumber) async {
+    bool returnStatus = false;
+    PostgreSQLResult newCar;
+    PostgreSQLResult newCar_Driver;
+
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        newCar = await newSellerConn.query(
+          '''insert into "Vehicle" ("platenumber","Capacity","model","color","registration number")'''
+          "values('$plateNumber',$capacity,'$model','$color','$registrationNumber')",
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+
+        newCar_Driver = await newSellerConn.query(
+          '''insert into "Driver_Vehicle" ("Driver_ID","PlateNumber")'''
+          "values(${_appController.currentCustomerId},'$plateNumber')",
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+
+        Fluttertoast.showToast(
+          msg: "Vehicle added ",
+          textColor: Colors.green,
+        );
+      });
+    } catch (exc) {
+      print("\n\nerror adding  Vehicle\n${exc.toString()}");
+      Fluttertoast.showToast(
+        msg: exc.toString(),
+        textColor: Colors.red,
+        gravity: ToastGravity.CENTER,
+        toastLength: Toast.LENGTH_LONG,
+      );
+    }
+  }
+
+  ///add new Bus Company
+  Future<void> addNewBusCompany(String companyName) async {
+
+    PostgreSQLResult newBusCompany;
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        newBusCompany = await newSellerConn.query(
+          '''insert into "Bus Company" ("name")'''
+          "values('$companyName')",
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+
+        Fluttertoast.showToast(
+          msg: "company  added ",
+          textColor: Colors.green,
+        );
+      });
+    } catch (exc) {
+      print("\n\nerror adding  company\n${exc.toString()}");
+      Fluttertoast.showToast(
+        msg: exc.toString(),
+        textColor: Colors.red,
+        gravity: ToastGravity.CENTER,
+        toastLength: Toast.LENGTH_LONG,
+      );
+    }
+  }
 }

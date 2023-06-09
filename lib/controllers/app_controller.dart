@@ -224,6 +224,7 @@ class AppController extends GetxController {
   var pageindex = 1.obs;
   final drawerTextSize = 18.0;
   var isCurrentUserDriver = false.obs;
+
   //-------------------------------------//
 
   // --------------  Customers Post pgae Controller---------------//
