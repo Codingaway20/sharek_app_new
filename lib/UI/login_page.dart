@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: const InputDecoration(
                             hintText: "email@example.com",
                             hintStyle: TextStyle(
-                              color: Colors.white,
+                              color: Colors.grey,
                               fontSize: 15,
                             ),
                             enabledBorder: OutlineInputBorder(
@@ -118,7 +118,7 @@ class _LoginPageState extends State<LoginPage> {
                             fillColor: Colors.white30,
                             hintText: "***********",
                             hintStyle: TextStyle(
-                              color: Colors.white,
+                              color: Colors.grey,
                               fontSize: 15,
                             ),
                             border: OutlineInputBorder(
@@ -149,8 +149,8 @@ class _LoginPageState extends State<LoginPage> {
                           _appController.currentUserEmail.value =
                               _emailController.text;
 
-                          _appController.currentCustomerId = await
-                              AppDatabase().getUserId(_appController.currentUserEmail.value);
+                          _appController.currentCustomerId = await AppDatabase()
+                              .getUserId(_appController.currentUserEmail.value);
                           Get.to(
                             () => HomePage(),
                             transition: Transition.fade,

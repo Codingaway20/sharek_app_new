@@ -40,9 +40,8 @@ class AppDatabase {
             // your computer machine IP address (i.e,192.168.0.1,etc)
             // when using AVD add this IP 10.0.2.2
             //'10.0.2.2',
-            //'192.168.0.113',
-            '10.143.14.176', //metu address
-
+            '192.168.0.113',
+            //'10.143.14.176', //metu address
             5432,
             'sharek_app_database',
             //username: 'postgres',
@@ -172,6 +171,7 @@ class AppDatabase {
     }
   }
 
+  //getting all customers posts
   Future<List<List<dynamic>>> getAllCustomersPosts() async {
     PostgreSQLResult? customersPosts;
 
@@ -192,6 +192,35 @@ class AppDatabase {
     }
     if (customersPosts != null) {
       return customersPosts as List<List<dynamic>>;
+    } else {
+      return [[]];
+    }
+  }
+
+  //getting filtred customers posts
+  Future<List<List<dynamic>>> getFilteredCustomersPosts(
+      String pessengersRange, String from, String to) async {
+    PostgreSQLResult? filtredCustomersPosts;
+    try {
+      //and "number_of_custmers" <${int.parse(pessengersRange)}
+      //"shared_option" = ${_appController.filterIsShared}
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        filtredCustomersPosts = await newSellerConn.query(
+          '''
+              select * from "Customer_Post" where "city_from" = '$from' and "city_to" = '$to' and "shared_option" = ${_appController.filterIsShared} and "number_of_custmers" <${int.parse(pessengersRange)} 
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+      });
+    } catch (exc) {
+      Fluttertoast.showToast(msg: exc.toString(), textColor: Colors.red);
+      print("\n-----------------------${exc.toString()}\n");
+    }
+    if (filtredCustomersPosts != null) {
+      print("filtredCustomersPosts\n$filtredCustomersPosts");
+      return filtredCustomersPosts as List<List<dynamic>>;
     } else {
       return [[]];
     }
@@ -220,6 +249,69 @@ class AppDatabase {
     } else {
       return [[]];
     }
+  }
+
+  //getting all available drivers
+  Future<List<List<dynamic>>> getAllAvailbeDrivers() async {
+    PostgreSQLResult? availableDrivers;
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        availableDrivers = await newSellerConn.query(
+          '''
+              select * from "User" where "Driver_flag" = true and "available" = true
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+      });
+    } catch (exc) {
+      //Fluttertoast.showToast(msg: exc.toString(), textColor: Colors.red);
+      print("\n-----------------------${exc.toString()}\n");
+    }
+    if (availableDrivers != null) {
+      return availableDrivers as List<List<dynamic>>;
+    } else {
+      return [[]];
+    }
+  }
+
+  //getting all driverVehicles
+  Future<Map<String, List<List<dynamic>>>> getdriverVehicles() async {
+    PostgreSQLResult? driverRelatedPlateNumbers;
+    PostgreSQLResult? driverVehicles;
+
+    Map<String, List<List<dynamic>>> PlateToVhicle = {};
+
+    try {
+      await connection!.open();
+      await connection!.transaction((newSellerConn) async {
+        driverRelatedPlateNumbers = await newSellerConn.query(
+          '''
+              select "PlateNumber" from "Driver_Vehicle" where "Driver_ID" = ${_appController.currentCustomerId}
+          ''',
+          allowReuse: true,
+          timeoutInSeconds: 30,
+        );
+
+        if (driverRelatedPlateNumbers != null) {
+          for (int i = 0; i < driverRelatedPlateNumbers!.length; i++) {
+            driverVehicles = await newSellerConn.query(
+              '''
+              select * from "Vehicle" where "platenumber" = '${driverRelatedPlateNumbers![i][0]}'
+              ''',
+              allowReuse: true,
+              timeoutInSeconds: 30,
+            );
+            PlateToVhicle[driverRelatedPlateNumbers![i][0]] = driverVehicles!;
+          }
+        }
+      });
+    } catch (exc) {
+      //Fluttertoast.showToast(msg: exc.toString(), textColor: Colors.red);
+      print("\n-----------------------${exc.toString()}\n");
+    }
+    return PlateToVhicle;
   }
 
   //create new Customer post
@@ -322,34 +414,34 @@ class AppDatabase {
     }
   }
 
-  ///add new Bus Company
-  Future<void> addNewBusCompany(String companyName) async {
-    PostgreSQLResult newBusCompany;
-    try {
-      await connection!.open();
-      await connection!.transaction((newSellerConn) async {
-        newBusCompany = await newSellerConn.query(
-          '''insert into "Bus Company" ("name")'''
-          "values('$companyName')",
-          allowReuse: true,
-          timeoutInSeconds: 30,
-        );
+  // ///add new Bus Company
+  // Future<void> addNewBusCompany(String companyName) async {
+  //   PostgreSQLResult newBusCompany;
+  //   try {
+  //     await connection!.open();
+  //     await connection!.transaction((newSellerConn) async {
+  //       newBusCompany = await newSellerConn.query(
+  //         '''insert into "Bus Company" ("name")'''
+  //         "values('$companyName')",
+  //         allowReuse: true,
+  //         timeoutInSeconds: 30,
+  //       );
 
-        Fluttertoast.showToast(
-          msg: "company  added ",
-          textColor: Colors.green,
-        );
-      });
-    } catch (exc) {
-      print("\n\nerror adding  company\n${exc.toString()}");
-      Fluttertoast.showToast(
-        msg: exc.toString(),
-        textColor: Colors.red,
-        gravity: ToastGravity.CENTER,
-        toastLength: Toast.LENGTH_LONG,
-      );
-    }
-  }
+  //       Fluttertoast.showToast(
+  //         msg: "company  added ",
+  //         textColor: Colors.green,
+  //       );
+  //     });
+  //   } catch (exc) {
+  //     print("\n\nerror adding  company\n${exc.toString()}");
+  //     Fluttertoast.showToast(
+  //       msg: exc.toString(),
+  //       textColor: Colors.red,
+  //       gravity: ToastGravity.CENTER,
+  //       toastLength: Toast.LENGTH_LONG,
+  //     );
+  //   }
+  // }
 
   //Update username
   Future<void> updateUsername(String userName) async {

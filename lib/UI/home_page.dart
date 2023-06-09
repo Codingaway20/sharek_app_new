@@ -8,6 +8,7 @@ import 'package:sharek_app_new/controllers/app_controller.dart';
 
 import '../db/app_database_new.dart';
 import 'busCompanies_page.dart';
+import 'driverVehicles.dart';
 import 'posts/customerPosts_page.dart';
 import 'posts/driverPosts_page.dart';
 
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
     CustomerPosts(),
     const DriverPosts(),
     BusCompanies(),
+    DriverVehicles(),
     const Settings(),
   ];
 
@@ -53,6 +55,23 @@ class _HomePageState extends State<HomePage> {
 
   //add new Bus company
   final TextEditingController _busCompanyName = TextEditingController();
+
+  //filters controllers
+  final TextEditingController _pessengersRange = TextEditingController();
+  final TextEditingController _fromCityFilter = TextEditingController();
+  final TextEditingController _toCityFilter = TextEditingController();
+
+  @override
+  void dispose() {
+    _tripDate.dispose();
+    _from.dispose();
+    _to.dispose();
+    _notes.dispose();
+    _numberOfCustomers.dispose();
+    _price.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -61,6 +80,16 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           backgroundColor: Colors.orange,
           actions: [
+            IconButton(
+              onPressed: () async {
+                if (_appController.filterIsSharedPressed.value) {
+                  _appController.filterIsSharedPressed.value = false;
+                  await _appController.getAllCustomersPosts();
+                }
+              },
+              icon: const Icon(Icons.close),
+            ),
+            appyFiltersButton(context),
             Obx(
               () => Visibility(
                   visible: _appController.pageindex.value == 0 ? true : false,
@@ -79,9 +108,8 @@ class _HomePageState extends State<HomePage> {
                 chnageRoleButton(),
                 //add car
                 addNewVehicleButton(context),
-
-                //add bus company
-                addNewBusCompanyButton(context),
+                //List all avaible Drivers
+                listAllAvailalbeDriversButton(context),
               ],
             ),
           ),
@@ -103,6 +131,10 @@ class _HomePageState extends State<HomePage> {
                 label: 'Bus companies',
               ),
               BottomNavigationBarItem(
+                icon: Icon(Icons.car_rental),
+                label: 'My vehicles',
+              ),
+              BottomNavigationBarItem(
                 icon: Icon(Icons.settings),
                 label: 'Settings',
               ),
@@ -113,9 +145,10 @@ class _HomePageState extends State<HomePage> {
               _appController.pageindex.value = index;
               if (_appController.pageindex.value == 0) {
                 await _appController.getAllCustomersPosts();
-              }
-              if (_appController.pageindex.value == 2) {
+              } else if (_appController.pageindex.value == 2) {
                 await _appController.getAllBusCompanies();
+              } else if (_appController.pageindex == 3) {
+                await _appController.getCurrentDriverVehicles();
               }
             },
           ),
@@ -125,6 +158,122 @@ class _HomePageState extends State<HomePage> {
             index: _appController.pageindex.value,
             children: _pages,
           ),
+        ),
+      ),
+    );
+  }
+
+  Obx appyFiltersButton(BuildContext context) {
+    return Obx(
+      () => Visibility(
+        visible: _appController.pageindex.value == 0 ? true : false,
+        child: IconButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Center(child: Text('Filters')),
+                  content: Column(
+                    children: [
+                      Obx(
+                        () => CheckboxListTile(
+                          title: const Text('is Shared'),
+                          value: _appController.filterIsShared.value,
+                          onChanged: (value) {
+                            _appController.filterIsShared.value = value!;
+                          },
+                        ),
+                      ),
+                      TextField(
+                        decoration: const InputDecoration(
+                          hintText: "up to number of pessngers",
+                        ),
+                        controller: _pessengersRange,
+                      ),
+                      TextField(
+                        decoration: const InputDecoration(
+                          hintText: "from city",
+                        ),
+                        controller: _fromCityFilter,
+                      ),
+                      TextField(
+                        decoration: const InputDecoration(
+                          hintText: "to city",
+                        ),
+                        controller: _toCityFilter,
+                      ),
+                      Spacer(),
+                      const Text(
+                        "Accepted cities choices",
+                        style: TextStyle(color: Colors.orange),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Wrap(
+                        spacing: 20,
+                        children: [
+                          Text(_appController.listOfCities[0]),
+                          Text(_appController.listOfCities[1]),
+                          Text(_appController.listOfCities[2]),
+                          Text(_appController.listOfCities[3]),
+                          Text(_appController.listOfCities[4]),
+                          Text(_appController.listOfCities[5]),
+                          Text(_appController.listOfCities[6]),
+                        ],
+                      ),
+                      Spacer(),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      child: const Text('apply filter'),
+                      onPressed: () async {
+                        if (_fromCityFilter.text.isNotEmpty &&
+                            !(_appController.listOfCities
+                                .contains(_fromCityFilter.text))) {
+                          Fluttertoast.showToast(
+                            msg: "from city is does not exist ",
+                            textColor: Colors.red,
+                            gravity: ToastGravity.CENTER,
+                          );
+                          return;
+                        }
+                        if (_toCityFilter.text.isNotEmpty &&
+                            !(_appController.listOfCities
+                                .contains(_toCityFilter.text))) {
+                          Fluttertoast.showToast(
+                            msg: "from city is does not exist ",
+                            textColor: Colors.red,
+                            gravity: ToastGravity.CENTER,
+                          );
+                          return;
+                        }
+
+                        //DB part
+                        try {
+                          await _appController.getFilteredCustomersPosts(
+                              _pessengersRange.text,
+                              _fromCityFilter.text,
+                              _toCityFilter.text);
+                          _appController.filterIsSharedPressed.value = true;
+            
+                        } catch (e) {
+                          Fluttertoast.showToast(
+                            msg: e.toString(),
+                            textColor: Colors.red,
+                            gravity: ToastGravity.CENTER,
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          icon: const Icon(Icons.search),
         ),
       ),
     );
@@ -278,7 +427,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Visibility addNewBusCompanyButton(BuildContext context) {
+  Visibility listAllAvailalbeDriversButton(BuildContext context) {
     return Visibility(
       visible: _appController.isCurrentUserDriver.value,
       child: Padding(
@@ -293,58 +442,31 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           child: TextButton(
-            onPressed: () {
+            onPressed: () async {
+              await _appController.getAllAvailableDrivers();
               //add new car here
+              // ignore: use_build_context_synchronously
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: const Center(
                       child: Text(
-                        'Add new Bus Company ',
+                        'Available Drivers',
                       ),
                     ),
-                    content: ListView(
-                      children: [
-                        TextField(
-                          decoration: const InputDecoration(
-                            hintText: "company name",
-                          ),
-                          controller: _busCompanyName,
-                        ),
-                      ],
+                    content: Obx(
+                      () => ListView(
+                        children: _appController
+                            .availableDrivers, // all the avaible drivers
+                      ),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          // Perform action when the "Cancel" button is pressed
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          if (_busCompanyName.text.isEmpty) {
-                            Fluttertoast.showToast(
-                              msg: "fill all the fields",
-                              textColor: Colors.red,
-                              gravity: ToastGravity.CENTER,
-                            );
-                            return;
-                          }
-
-                          //insert in DB
-                          try {} catch (e) {}
-                        },
-                        child: const Text('add'),
-                      ),
-                    ],
                   );
                 },
               );
             },
             child: Text(
-              "Add new Bus Company",
+              "List all avaible Drivers",
               style: TextStyle(
                 fontSize: _appController.drawerTextSize,
                 color: Colors.amber,
@@ -356,158 +478,151 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Row createCustomerPostButton(BuildContext context) {
-    return Row(
-      children: [
-        const Text(
-          "Create customer post",
-        ),
-        IconButton(
-          onPressed: () async {
-            //Get post info from the user
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: const Center(child: Text('Enter Post Info below')),
+  IconButton createCustomerPostButton(BuildContext context) {
+    return IconButton(
+      onPressed: () async {
+        //Get post info from the user
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Center(child: Text('Enter Post Info below')),
 
-                  //Text fileds
-                  content: SingleChildScrollView(
-                    child: Obx(
-                      () => Column(children: [
-                        TextField(
-                          decoration: const InputDecoration(
-                              hintText: "trip Date {yyyy-mm-dd}"),
-                          controller: _tripDate,
-                          keyboardType: TextInputType.datetime,
-                        ),
-                        TextField(
-                          decoration: const InputDecoration(hintText: "from"),
-                          controller: _from,
-                        ),
-                        TextField(
-                          decoration: const InputDecoration(hintText: "to"),
-                          controller: _to,
-                        ),
-                        TextField(
-                          decoration: const InputDecoration(
-                              hintText: "number of Customers"),
-                          controller: _numberOfCustomers,
-                        ),
-                        TextField(
-                          decoration: const InputDecoration(hintText: "price"),
-                          controller: _price,
-                        ),
-                        TextField(
-                          decoration: const InputDecoration(hintText: "Notes"),
-                          controller: _notes,
-                        ),
-                        CheckboxListTile(
-                          title: const Text('Shared'),
-                          value: _appController.isShared.value,
-                          onChanged: (value) {
-                            _appController.isShared.value = value!;
-                          },
-                        ),
-                      ]),
+              //Text fileds
+              content: SingleChildScrollView(
+                child: Obx(
+                  () => Column(children: [
+                    TextField(
+                      decoration: const InputDecoration(
+                          hintText: "trip Date {yyyy-mm-dd}"),
+                      controller: _tripDate,
+                      keyboardType: TextInputType.datetime,
                     ),
+                    TextField(
+                      decoration: const InputDecoration(hintText: "from"),
+                      controller: _from,
+                    ),
+                    TextField(
+                      decoration: const InputDecoration(hintText: "to"),
+                      controller: _to,
+                    ),
+                    TextField(
+                      decoration: const InputDecoration(
+                          hintText: "number of Customers"),
+                      controller: _numberOfCustomers,
+                    ),
+                    TextField(
+                      decoration: const InputDecoration(hintText: "price"),
+                      controller: _price,
+                    ),
+                    TextField(
+                      decoration: const InputDecoration(hintText: "Notes"),
+                      controller: _notes,
+                    ),
+                    CheckboxListTile(
+                      title: const Text('Shared'),
+                      value: _appController.isShared.value,
+                      onChanged: (value) {
+                        _appController.isShared.value = value!;
+                      },
+                    ),
+                  ]),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Perform action when the "Cancel" button is pressed
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.red),
                   ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        // Perform action when the "Cancel" button is pressed
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        //check the filds
-                        if (_tripDate.text.isEmpty ||
-                            _from.text.isEmpty ||
-                            _to.text.isEmpty ||
-                            _notes.text.isEmpty ||
-                            _numberOfCustomers.text.isEmpty ||
-                            _price.text.isEmpty) {
-                          Fluttertoast.showToast(
-                            msg: "Fill all the fields",
-                            textColor: Colors.red,
-                            fontSize: 20,
-                            gravity: ToastGravity.CENTER,
-                          );
-                          return;
-                        }
-                        //check the fomrat of date
-                        if (_tripDate.text.length == 10 &&
-                            dateRegExp.hasMatch(_tripDate.text)) {
-                          //date is ok now
+                ),
+                TextButton(
+                  onPressed: () async {
+                    //check the filds
+                    if (_tripDate.text.isEmpty ||
+                        _from.text.isEmpty ||
+                        _to.text.isEmpty ||
+                        _notes.text.isEmpty ||
+                        _numberOfCustomers.text.isEmpty ||
+                        _price.text.isEmpty) {
+                      Fluttertoast.showToast(
+                        msg: "Fill all the fields",
+                        textColor: Colors.red,
+                        fontSize: 20,
+                        gravity: ToastGravity.CENTER,
+                      );
+                      return;
+                    }
+                    //check the fomrat of date
+                    if (_tripDate.text.length == 10 &&
+                        dateRegExp.hasMatch(_tripDate.text)) {
+                      //date is ok now
 
-                          print(
-                              "${DateFormat('yyyy-MM-dd').format(DateTime.now())}");
+                      print(
+                          "${DateFormat('yyyy-MM-dd').format(DateTime.now())}");
 
-                          //insert To dB
-                          try {
-                            AppDatabase().createNewCustomerPost(
-                                DateTime.parse(_tripDate.text),
-                                _notes.text,
-                                DateTime.parse(DateFormat('yyyy-MM-dd')
-                                    .format(DateTime.now())),
-                                _to.text,
-                                _from.text,
-                                int.parse(_numberOfCustomers.text),
-                                int.parse(_price.text),
-                                _appController.isShared.value,
-                                _appController.currentCustomerId);
-                          } catch (e) {
-                            Fluttertoast.showToast(
-                              msg: e.toString(),
-                              textColor: Colors.red,
-                              gravity: ToastGravity.CENTER,
-                              toastLength: Toast.LENGTH_LONG,
-                            );
-                          }
+                      //insert To dB
+                      try {
+                        AppDatabase().createNewCustomerPost(
+                            DateTime.parse(_tripDate.text),
+                            _notes.text,
+                            DateTime.parse(DateFormat('yyyy-MM-dd')
+                                .format(DateTime.now())),
+                            _to.text,
+                            _from.text,
+                            int.parse(_numberOfCustomers.text),
+                            int.parse(_price.text),
+                            _appController.isShared.value,
+                            _appController.currentCustomerId);
+                      } catch (e) {
+                        Fluttertoast.showToast(
+                          msg: e.toString(),
+                          textColor: Colors.red,
+                          gravity: ToastGravity.CENTER,
+                          toastLength: Toast.LENGTH_LONG,
+                        );
+                      }
 
-                          //clearing the fieds
-                          _price.clear();
-                          _numberOfCustomers.clear();
-                          _notes.clear();
-                          _to.clear();
-                          _from.clear();
-                          _tripDate.clear();
-                          Navigator.of(context).pop();
-                        } else {
-                          Fluttertoast.showToast(
-                            msg: "incorrect date format!",
-                            textColor: Colors.red,
-                            fontSize: 20,
-                            gravity: ToastGravity.CENTER,
-                          );
-                          return;
-                        }
-                      },
-                      child: const Text(
-                        'create',
-                        style: TextStyle(color: Colors.orange),
-                      ),
-                    ),
-                  ],
-                );
-              },
+                      //clearing the fieds
+                      _price.clear();
+                      _numberOfCustomers.clear();
+                      _notes.clear();
+                      _to.clear();
+                      _from.clear();
+                      _tripDate.clear();
+                      Navigator.of(context).pop();
+                    } else {
+                      Fluttertoast.showToast(
+                        msg: "incorrect date format!",
+                        textColor: Colors.red,
+                        fontSize: 20,
+                        gravity: ToastGravity.CENTER,
+                      );
+                      return;
+                    }
+                  },
+                  child: const Text(
+                    'create',
+                    style: TextStyle(color: Colors.orange),
+                  ),
+                ),
+              ],
             );
-
-            //create post
-
-            //add to DB
           },
-          icon: const Icon(
-            Icons.create,
-            semanticLabel: "Create Post",
-          ),
-        ),
-      ],
+        );
+
+        //create post
+
+        //add to DB
+      },
+      icon: const Icon(
+        Icons.create,
+        semanticLabel: "Create Post",
+      ),
     );
   }
 }
